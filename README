@@ -1,0 +1,8 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=1319
+
+Runs the Test::Harness 'prove' utility and formats the errors. It is implemented as a compiler, so it's invoked with :make and the usual error navigation commands work.
+
+Usage:
+:make  - runs prove for the testfile you are in. Failed tests and perl errors are recognized by vim and it jumps to the first error (failed test or perl syntax error). Use :cn and :cp to go to the next resp. previous error. :cl gives a list of all the errors and :cc <number> jumps to a specific error message. See the 'quickfix' part in the vim manual.
+:make <arguments>  - runs prove with the argument you give. It does not add the filename of the current test. Useful to run all your test, eq: ':make *t', or ':make t'
+
