@@ -1,8 +1,9 @@
 " Vim Compiler File
 " Compiler:     runs perl's Test::Unit 'prove'
-" Maintainer:   harm@tty.nl
+" Maintainer:   harmen-cpan@millionmonkeys.nl
 " OriginalMaintainer:   Christian J. Robinson <infynity@onewest.net>
-" Creation and Last Change:  2005 Jul 28
+" Creation:  2005 Jul 28
+" Creation:  2005 Jul 29
 "
 " Installation:
 " - Copy this file to ~/.vim/compiler/
@@ -23,14 +24,16 @@ set cpo&vim
 
 " Usage: :make - prove the current testfile
 "        :make t - run prove and give arguments to prove ('t' in this case)
-" The perl after the pipe is a poormans-unbuffered-grep
-CompilerSet makeprg=prove\ -v\ \`if\ test\ -n\ \"$*\"\;\ then\ echo\ \"$*\"\;\ else\ echo\ \"%\"\;\ fi\`\ 2>/dev/stdout\ 1>/dev/null\\\|cat
-" |perl\ -ne\'BEGIN\{\$\\\|\+\+\}\;\ print\ if\ not\ /\^ok\/\' 
+" prove is called with '-l -v'
+" The /dev/stdout trick is to make sure vim only gets prove's STDERR
+CompilerSet makeprg=prove\ -l\ -v\ \`if\ test\ -n\ \"$*\"\;\ then\ echo\ \"$*\"\;\ else\ echo\ \"%\"\;\ fi\`\ 2>/dev/stdout\ 1>/dev/null\\\|cat
 
 CompilerSet errorformat=
 	\%m\ at\ %f\ line\ %l.,
     \%I#\ Looks\ like\ you\ %m%.%#,
     \%Z\ %#,
+    \%I#\ \ \ \ \ Failed\ test\ (%f\ at\ line\ %l),
+    \%+Z#\ \ \ \ \ Tried\ to\ use%m,
     \%E#\ \ \ \ \ Failed\ test\ (%f\ at\ line\ %l),
     \%C#\ \ \ \ \ %m,
     \%Z#\ %#%m,
@@ -39,17 +42,16 @@ CompilerSet errorformat=
 	\%-G%.%#syntax\ OK,
 	\%+A%.%#\ at\ %f\ line\ %l\\,%.%#,
 	\%+Z%.%#
-" informational, number of failures
-" Failed test, has 2 info lines
-" Failed test, single line, no info
-" Perl syntax errors. Copied from the vim perl compiler package
-
 " Explanation:
-" %-G%.%#had\ compilation\ errors.,  - Ignore the obvious.
-" %-G%.%#syntax\ OK,                 - Don't include the 'a-okay' message.
-" %m\ at\ %f\ line\ %l.,             - Most errors...
-" %+A%.%#\ at\ %f\ line\ %l\\,%.%#,  - As above, including ', near ...'
-" %+C%.%#                            -   ... Which can be multi-line.
+" 1  : General perl error
+" 2-3: informational, number of failures
+" 4-5: use_ok error. The error itself will come later (meta: how can we make vim ignore this muliline error?)
+" 6-8: Failed test, has 2 info lines
+" 9  : Failed test, single line, no info
+" 10-11: noise
+" 12-13: error with a 'near' (multiline)
+" (Perl syntax errors copied from the vim perl compiler package)
+
 
 let &cpo = s:savecpo
 unlet s:savecpo
